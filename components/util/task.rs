@@ -3,44 +3,46 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 use std::borrow::ToOwned;
-use std::task;
-use std::comm::Sender;
-use std::task::TaskBuilder;
-// use rtinstrument;
 use task_state;
+use std::thread;
+use std::sync::mpsc::Sender;
+use std::thread::Builder;
 
-pub fn spawn_named(name: String, f: proc():Send) {
-    let builder = task::TaskBuilder::new().named(name);
-    builder.spawn(proc() {
-        // rtinstrument::instrument(f);
-        f();
+pub fn spawn_named<F>(name: String, f: F)
+    where F: FnOnce() + Send
+{
+    let builder = thread::Builder::new().name(name);
+    builder.spawn(move || {
+        f()
     });
 }
 
 /// Arrange to send a particular message to a channel if the task fails.
-pub fn spawn_named_with_send_on_failure<T: Send>(name: &'static str,
+pub fn spawn_named_with_send_on_failure<F:FnOnce()+Send,T: Send>(name: &'static str,
                                                  state: task_state::TaskState,
-                                                 f: proc(): Send,
+                                                 f: F,
                                                  msg: T,
                                                  dest: Sender<T>) {
-    let future_result = TaskBuilder::new().named(name).try_future(proc() {
+    let future_handle = thread::Builder::new().name(name.to_owned()).scoped(move || {
         task_state::initialize(state);
-        // FIXME: Find replacement for this post-runtime removal
-        // rtinstrument::instrument(f);
-        f();
+        f()
     });
 
-    let watched_name = name.to_owned();
-    let watcher_name = format!("{}Watcher", watched_name);
-    TaskBuilder::new().named(watcher_name).spawn(proc() {
-        //rtinstrument::instrument(proc() {
-            match future_result.into_inner() {
-                Ok(()) => (),
-                Err(..) => {
-                    debug!("{} failed, notifying constellation", name);
-                    dest.send(msg);
-                }
+    let watcher_name = format!("{}Watcher", name);
+    Builder::new().name(watcher_name).spawn(move || {
+        match future_handle.join() {
+            Ok(()) => (),
+            Err(..) => {
+                debug!("{} failed, notifying constellation", name);
+                dest.send(msg);
             }
-        //});
+        }
+    });
+}
+
+#[test]
+fn spawn_named_test() {
+    spawn_named("Test".to_owned(), move || {
+        debug!("I can run!");
     });
 }

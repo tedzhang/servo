@@ -13,33 +13,43 @@ pub use std::hash::{Hash, Hasher, Writer};
 ///
 /// This uses FNV hashing, as described here:
 /// http://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
-#[deriving(Clone)]
-pub struct FnvHasher;
+#[derive(Clone)]
+pub struct FnvHasher(u64);
 
 pub struct FnvState(u64);
 
-impl Hasher<FnvState> for FnvHasher {
-    fn hash<Sized? T: Hash<FnvState>>(&self, t: &T) -> u64 {
-        let mut state = FnvState(0xcbf29ce484222325);
-        t.hash(&mut state);
-        let FnvState(ret) = state;
-        return ret;
+impl FnvHasher {
+    fn new() -> FnvHasher {
+        FnvHasher(0xcbf29ce484222325)
     }
 }
 
-impl Writer for FnvState {
+impl Hasher for FnvHasher {
+    type Output = u64;
+    fn reset(&mut self) {
+        *self = FnvHasher::new();
+    }
+
+    fn finish(&self) -> u64 {
+        self.0
+    }
+}
+
+impl Writer for FnvHasher {
+    #[inline]
     fn write(&mut self, bytes: &[u8]) {
-        let FnvState(mut hash) = *self;
+        let FnvHasher(mut hash) = *self;
         for byte in bytes.iter() {
             hash = hash ^ (*byte as u64);
             hash = hash * 0x100000001b3;
         }
-        *self = FnvState(hash);
+        *self = FnvHasher(hash);
     }
 }
 
 #[inline(always)]
-pub fn hash<T: Hash<FnvState>>(t: &T) -> u64 {
-    let s = FnvHasher;
-    s.hash(t)
+pub fn hash<T: Hash<FnvHasher>>(t: &T) -> u64 {
+    let mut s = FnvHasher::new();
+    t.hash(&mut s);
+    s.finish()
 }

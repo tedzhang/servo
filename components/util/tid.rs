@@ -2,20 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use std::sync::atomic::{AtomicUint, INIT_ATOMIC_UINT, SeqCst};
+use std::sync::atomic::{AtomicUint, ATOMIC_UINT_INIT, Ordering};
 use std::rc::Rc;
 use std::cell::RefCell;
 
-static mut next_tid: AtomicUint = INIT_ATOMIC_UINT;
+static mut next_tid: AtomicUint = ATOMIC_UINT_INIT;
 
-thread_local!(static TASK_LOCAL_TID: Rc<RefCell<Option<uint>>> = Rc::new(RefCell::new(None)))
+thread_local!(static TASK_LOCAL_TID: Rc<RefCell<Option<uint>>> = Rc::new(RefCell::new(None)));
 
 /// Every task gets one, that's unique.
 pub fn tid() -> uint {
     TASK_LOCAL_TID.with(|ref k| {
         let ret =
             match *k.borrow() {
-                None => unsafe { next_tid.fetch_add(1, SeqCst) },
+                None => unsafe { next_tid.fetch_add(1, Ordering::SeqCst) },
                 Some(x) => x,
             };
 

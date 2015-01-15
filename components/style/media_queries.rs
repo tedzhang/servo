@@ -16,7 +16,7 @@ pub struct MediaQueryList {
     media_queries: Vec<MediaQuery>
 }
 
-#[deriving(PartialEq, Eq, Copy, Show)]
+#[derive(PartialEq, Eq, Copy, Show)]
 pub enum Range<T> {
     Min(T),
     Max(T),
@@ -33,12 +33,12 @@ impl<T: Ord> Range<T> {
     }
 }
 
-#[deriving(PartialEq, Eq, Copy, Show)]
+#[derive(PartialEq, Eq, Copy, Show)]
 pub enum Expression {
     Width(Range<Au>),
 }
 
-#[deriving(PartialEq, Eq, Copy, Show)]
+#[derive(PartialEq, Eq, Copy, Show)]
 pub enum Qualifier {
     Only,
     Not,
@@ -62,13 +62,13 @@ impl MediaQuery {
     }
 }
 
-#[deriving(PartialEq, Eq, Copy, Show)]
+#[derive(PartialEq, Eq, Copy, Show)]
 pub enum MediaQueryType {
     All,  // Always true
     MediaType(MediaType),
 }
 
-#[deriving(PartialEq, Eq, Copy, Show)]
+#[derive(PartialEq, Eq, Copy, Show)]
 pub enum MediaType {
     Screen,
     Print,
@@ -222,7 +222,7 @@ mod tests {
     use url::Url;
     use std::borrow::ToOwned;
 
-    fn test_media_rule(css: &str, callback: |&MediaQueryList, &str|) {
+    fn test_media_rule<F>(css: &str, callback: F) where F: Fn(&MediaQueryList, &str) {
         let url = Url::parse("http://localhost").unwrap();
         let stylesheet = Stylesheet::from_str(css, url, Origin::Author);
         let mut rule_count: int = 0;

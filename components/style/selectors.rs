@@ -16,14 +16,14 @@ use namespaces::NamespaceMap;
 use stylesheets::Origin;
 
 
-#[deriving(PartialEq, Clone, Show)]
+#[derive(PartialEq, Clone, Show)]
 pub struct Selector {
     pub compound_selectors: Arc<CompoundSelector>,
     pub pseudo_element: Option<PseudoElement>,
     pub specificity: u32,
 }
 
-#[deriving(Eq, PartialEq, Clone, Hash, Copy, Show)]
+#[derive(Eq, PartialEq, Clone, Hash, Copy, Show)]
 pub enum PseudoElement {
     Before,
     After,
@@ -31,13 +31,13 @@ pub enum PseudoElement {
 }
 
 
-#[deriving(PartialEq, Clone, Show)]
+#[derive(PartialEq, Clone, Show)]
 pub struct CompoundSelector {
     pub simple_selectors: Vec<SimpleSelector>,
     pub next: Option<(Box<CompoundSelector>, Combinator)>,  // c.next is left of c
 }
 
-#[deriving(PartialEq, Clone, Copy, Show)]
+#[derive(PartialEq, Clone, Copy, Show)]
 pub enum Combinator {
     Child,  //  >
     Descendant,  // space
@@ -45,7 +45,7 @@ pub enum Combinator {
     LaterSibling,  // ~
 }
 
-#[deriving(Eq, PartialEq, Clone, Hash, Show)]
+#[derive(Eq, PartialEq, Clone, Hash, Show)]
 pub enum SimpleSelector {
     ID(Atom),
     Class(Atom),
@@ -85,27 +85,27 @@ pub enum SimpleSelector {
 }
 
 
-#[deriving(Eq, PartialEq, Clone, Hash, Copy, Show)]
+#[derive(Eq, PartialEq, Clone, Hash, Copy, Show)]
 pub enum CaseSensitivity {
     CaseSensitive,  // Selectors spec says language-defined, but HTML says sensitive.
     CaseInsensitive,
 }
 
 
-#[deriving(Eq, PartialEq, Clone, Hash, Show)]
+#[derive(Eq, PartialEq, Clone, Hash, Show)]
 pub struct LocalName {
     pub name: Atom,
     pub lower_name: Atom,
 }
 
-#[deriving(Eq, PartialEq, Clone, Hash, Show)]
+#[derive(Eq, PartialEq, Clone, Hash, Show)]
 pub struct AttrSelector {
     pub name: Atom,
     pub lower_name: Atom,
     pub namespace: NamespaceConstraint,
 }
 
-#[deriving(Eq, PartialEq, Clone, Hash, Show)]
+#[derive(Eq, PartialEq, Clone, Hash, Show)]
 pub enum NamespaceConstraint {
     Any,
     Specific(Namespace),
@@ -288,7 +288,7 @@ fn parse_type_selector(context: &ParserContext, input: &mut Parser)
                 Some(name) => {
                     simple_selectors.push(SimpleSelector::LocalName(LocalName {
                         name: Atom::from_slice(name.as_slice()),
-                        lower_name: Atom::from_slice(name.into_owned().into_ascii_lower().as_slice())
+                        lower_name: Atom::from_slice(name.into_owned().into_ascii_lowercase().as_slice())
                     }))
                 }
                 None => (),
@@ -313,7 +313,7 @@ fn parse_qualified_name<'i, 't>
                        (context: &ParserContext, input: &mut Parser<'i, 't>,
                         in_attr_selector: bool)
                         -> Result<Option<(NamespaceConstraint, Option<CowString<'i>>)>, ()> {
-    let default_namespace = |local_name| {
+    let default_namespace = |:local_name| {
         let namespace = match context.namespaces.default {
             Some(ref ns) => NamespaceConstraint::Specific(ns.clone()),
             None => NamespaceConstraint::Any,
@@ -321,7 +321,7 @@ fn parse_qualified_name<'i, 't>
         Ok(Some((namespace, local_name)))
     };
 
-    let explicit_namespace = |input: &mut Parser<'i, 't>, namespace| {
+    let explicit_namespace = |&: input: &mut Parser<'i, 't>, namespace| {
         match input.next_including_whitespace() {
             Ok(Token::Delim('*')) if !in_attr_selector => {
                 Ok(Some((namespace, None)))
@@ -383,7 +383,7 @@ fn parse_attribute_selector(context: &ParserContext, input: &mut Parser)
         Some((_, None)) => unreachable!(),
         Some((namespace, Some(local_name))) => AttrSelector {
             namespace: namespace,
-            lower_name: Atom::from_slice(local_name.as_slice().to_ascii_lower().as_slice()),
+            lower_name: Atom::from_slice(local_name.as_slice().to_ascii_lowercase().as_slice()),
             name: Atom::from_slice(local_name.as_slice()),
         },
     };
@@ -408,7 +408,7 @@ fn parse_attribute_selector(context: &ParserContext, input: &mut Parser)
         // [foo|=bar]
         Ok(Token::DashMatch) => {
             let value = try!(parse_value(input));
-            let dashing_value = format!("{}-", value);
+            let dashing_value = format!("{:?}-", value);
             Ok(SimpleSelector::AttrDashMatch(attr, value, dashing_value))
         }
         // [foo^=bar]
@@ -673,7 +673,7 @@ mod tests {
 
     #[test]
     fn test_parsing() {
-        assert_eq!(parse(""), Err(()))
+        assert_eq!(parse(""), Err(())) ;
         assert_eq!(parse("EeÉ"), Ok(vec!(Selector {
             compound_selectors: Arc::new(CompoundSelector {
                 simple_selectors: vec!(SimpleSelector::LocalName(LocalName {
@@ -683,7 +683,7 @@ mod tests {
             }),
             pseudo_element: None,
             specificity: specificity(0, 0, 1),
-        })))
+        })));
         assert_eq!(parse(".foo"), Ok(vec!(Selector {
             compound_selectors: Arc::new(CompoundSelector {
                 simple_selectors: vec!(SimpleSelector::Class(Atom::from_slice("foo"))),
@@ -691,7 +691,7 @@ mod tests {
             }),
             pseudo_element: None,
             specificity: specificity(0, 1, 0),
-        })))
+        })));
         assert_eq!(parse("#bar"), Ok(vec!(Selector {
             compound_selectors: Arc::new(CompoundSelector {
                 simple_selectors: vec!(SimpleSelector::ID(Atom::from_slice("bar"))),
@@ -699,7 +699,7 @@ mod tests {
             }),
             pseudo_element: None,
             specificity: specificity(1, 0, 0),
-        })))
+        })));
         assert_eq!(parse("e.foo#bar"), Ok(vec!(Selector {
             compound_selectors: Arc::new(CompoundSelector {
                 simple_selectors: vec!(SimpleSelector::LocalName(LocalName {
@@ -711,21 +711,21 @@ mod tests {
             }),
             pseudo_element: None,
             specificity: specificity(1, 1, 1),
-        })))
+        })));
         assert_eq!(parse("e.foo #bar"), Ok(vec!(Selector {
             compound_selectors: Arc::new(CompoundSelector {
                 simple_selectors: vec!(SimpleSelector::ID(Atom::from_slice("bar"))),
-                next: Some((box CompoundSelector {
+                next: Some((Box::new(CompoundSelector {
                     simple_selectors: vec!(SimpleSelector::LocalName(LocalName {
                                                 name: Atom::from_slice("e"),
                                                 lower_name: Atom::from_slice("e") }),
                                            SimpleSelector::Class(Atom::from_slice("foo"))),
                     next: None,
-                }, Combinator::Descendant)),
+                }), Combinator::Descendant)),
             }),
             pseudo_element: None,
             specificity: specificity(1, 1, 1),
-        })))
+        })));
         // Default namespace does not apply to attribute selectors
         // https://github.com/mozilla/servo/pull/1652
         let mut namespaces = NamespaceMap::new();
@@ -740,7 +740,7 @@ mod tests {
             }),
             pseudo_element: None,
             specificity: specificity(0, 1, 0),
-        })))
+        })));
         // Default namespace does not apply to attribute selectors
         // https://github.com/mozilla/servo/pull/1652
         namespaces.default = Some(ns!(MathML));
@@ -755,7 +755,7 @@ mod tests {
             }),
             pseudo_element: None,
             specificity: specificity(0, 1, 0),
-        })))
+        })));
         // Default namespace does apply to type selectors
         assert_eq!(parse_ns("e", namespaces), Ok(vec!(Selector {
             compound_selectors: Arc::new(CompoundSelector {
@@ -769,7 +769,7 @@ mod tests {
             }),
             pseudo_element: None,
             specificity: specificity(0, 0, 1),
-        })))
+        })));
         // https://github.com/mozilla/servo/issues/1723
         assert_eq!(parse("::before"), Ok(vec!(Selector {
             compound_selectors: Arc::new(CompoundSelector {
@@ -778,20 +778,20 @@ mod tests {
             }),
             pseudo_element: Some(PseudoElement::Before),
             specificity: specificity(0, 0, 1),
-        })))
+        })));
         assert_eq!(parse("div :after"), Ok(vec!(Selector {
             compound_selectors: Arc::new(CompoundSelector {
                 simple_selectors: vec!(),
-                next: Some((box CompoundSelector {
+                next: Some((Box::new(CompoundSelector {
                     simple_selectors: vec!(SimpleSelector::LocalName(LocalName {
                         name: atom!("div"),
                         lower_name: atom!("div") })),
                     next: None,
-                }, Combinator::Descendant)),
+                }), Combinator::Descendant)),
             }),
             pseudo_element: Some(PseudoElement::After),
             specificity: specificity(0, 0, 2),
-        })))
+        })));
         assert_eq!(parse("#d1 > .ok"), Ok(vec![Selector {
             compound_selectors: Arc::new(CompoundSelector {
                 simple_selectors: vec![

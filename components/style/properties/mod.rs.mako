@@ -361,7 +361,7 @@ pub mod longhands {
         pub mod computed_value {
             use std::fmt;
 
-            #[deriving(PartialEq, Clone, Eq, Copy)]
+            #[derive(PartialEq, Clone, Eq, Copy)]
             pub enum T {
                 Auto,
                 Number(i32),
@@ -451,7 +451,7 @@ pub mod longhands {
     <%self:longhand name="line-height">
         use std::fmt;
         use values::CSSFloat;
-        #[deriving(Clone, PartialEq, Copy)]
+        #[derive(Clone, PartialEq, Copy)]
         pub enum SpecifiedValue {
             Normal,
             Length(specified::Length),
@@ -462,7 +462,7 @@ pub mod longhands {
             fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
                 match self {
                     &SpecifiedValue::Normal => write!(f, "normal"),
-                    &SpecifiedValue::Length(length) => write!(f, "{}", length),
+                    &SpecifiedValue::Length(length) => write!(f, "{:?}", length),
                     &SpecifiedValue::Number(number) => write!(f, "{}", number),
                     &SpecifiedValue::Percentage(number) => write!(f, "{}%", number * 100.),
                 }
@@ -493,7 +493,7 @@ pub mod longhands {
             use values::CSSFloat;
             use servo_util::geometry::Au;
             use std::fmt;
-            #[deriving(PartialEq, Copy, Clone)]
+            #[derive(PartialEq, Copy, Clone)]
             pub enum T {
                 Normal,
                 Length(Au),
@@ -503,7 +503,7 @@ pub mod longhands {
                 fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
                     match self {
                         &T::Normal => write!(f, "normal"),
-                        &T::Length(length) => write!(f, "{}%", length),
+                        &T::Length(length) => write!(f, "{:?}%", length),
                         &T::Number(number) => write!(f, "{}", number),
                     }
                 }
@@ -535,7 +535,7 @@ pub mod longhands {
         <% vertical_align_keywords = (
             "baseline sub super top text-top middle bottom text-bottom".split()) %>
         #[allow(non_camel_case_types)]
-        #[deriving(Clone, PartialEq, Copy)]
+        #[derive(Clone, PartialEq, Copy)]
         pub enum SpecifiedValue {
             % for keyword in vertical_align_keywords:
                 ${to_rust_ident(keyword)},
@@ -548,7 +548,7 @@ pub mod longhands {
                     % for keyword in vertical_align_keywords:
                         &SpecifiedValue::${to_rust_ident(keyword)} => write!(f, "${keyword}"),
                     % endfor
-                    &SpecifiedValue::LengthOrPercentage(lop) => write!(f, "{}", lop),
+                    &SpecifiedValue::LengthOrPercentage(lop) => write!(f, "{:?}", lop),
                 }
             }
         }
@@ -576,7 +576,7 @@ pub mod longhands {
             use servo_util::geometry::Au;
             use std::fmt;
             #[allow(non_camel_case_types)]
-            #[deriving(PartialEq, Copy, Clone)]
+            #[derive(PartialEq, Copy, Clone)]
             pub enum T {
                 % for keyword in vertical_align_keywords:
                     ${to_rust_ident(keyword)},
@@ -590,7 +590,7 @@ pub mod longhands {
                         % for keyword in vertical_align_keywords:
                             &T::${to_rust_ident(keyword)} => write!(f, "${keyword}"),
                         % endfor
-                        &T::Length(length) => write!(f, "{}", length),
+                        &T::Length(length) => write!(f, "{:?}", length),
                         &T::Percentage(number) => write!(f, "{}%", number),
                     }
                 }
@@ -642,7 +642,7 @@ pub mod longhands {
             use cssparser::Token;
             pub mod computed_value {
                 use std::fmt;
-                #[deriving(PartialEq, Eq, Clone)]
+                #[derive(PartialEq, Eq, Clone)]
                 pub enum ContentItem {
                     StringContent(String),
                 }
@@ -654,7 +654,7 @@ pub mod longhands {
                     }
                 }
                 #[allow(non_camel_case_types)]
-                #[deriving(PartialEq, Eq, Clone)]
+                #[derive(PartialEq, Eq, Clone)]
                 pub enum T {
                     normal,
                     none,
@@ -667,7 +667,7 @@ pub mod longhands {
                             &T::none => write!(f, "none"),
                             &T::Content(ref content) => {
                                 for c in content.iter() {
-                                    let _ = write!(f, "{}", c);
+                                    let _ = write!(f, "{:?}", c);
                                 }
                                 Ok(())
                             }
@@ -781,26 +781,26 @@ pub mod longhands {
                 use values::computed::LengthOrPercentage;
                 use std::fmt;
 
-                #[deriving(PartialEq, Copy, Clone)]
+                #[derive(PartialEq, Copy, Clone)]
                 pub struct T {
                     pub horizontal: LengthOrPercentage,
                     pub vertical: LengthOrPercentage,
                 }
                 impl fmt::Show for T {
                     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-                        write!(f, "{} {}", self.horizontal, self.vertical)
+                        write!(f, "{:?} {:?}", self.horizontal, self.vertical)
                     }
                 }
             }
 
-            #[deriving(Clone, PartialEq, Copy)]
+            #[derive(Clone, PartialEq, Copy)]
             pub struct SpecifiedValue {
                 pub horizontal: specified::LengthOrPercentage,
                 pub vertical: specified::LengthOrPercentage,
             }
             impl fmt::Show for SpecifiedValue {
                 fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-                    write!(f, "{} {}", self.horizontal, self.vertical)
+                    write!(f, "{:?} {:?}", self.horizontal, self.vertical)
                 }
             }
 
@@ -923,7 +923,7 @@ pub mod longhands {
         use self::computed_value::FontFamily;
         pub mod computed_value {
             use std::fmt;
-            #[deriving(PartialEq, Eq, Clone)]
+            #[derive(PartialEq, Eq, Clone)]
             pub enum FontFamily {
                 FamilyName(String),
                 // Generic
@@ -997,7 +997,7 @@ pub mod longhands {
 
     <%self:longhand name="font-weight">
         use std::fmt;
-        #[deriving(Clone, PartialEq, Eq, Copy)]
+        #[derive(Clone, PartialEq, Eq, Copy)]
         pub enum SpecifiedValue {
             Bolder,
             Lighter,
@@ -1043,7 +1043,7 @@ pub mod longhands {
         }
         pub mod computed_value {
             use std::fmt;
-            #[deriving(PartialEq, Eq, Copy, Clone)]
+            #[derive(PartialEq, Eq, Copy, Clone)]
             pub enum T {
                 % for weight in range(100, 901, 100):
                     Weight${weight},
@@ -1218,7 +1218,7 @@ pub mod longhands {
     <%self:longhand name="text-decoration">
         pub use super::computed_as_specified as to_computed_value;
         use std::fmt;
-        #[deriving(PartialEq, Eq, Copy, Clone)]
+        #[derive(PartialEq, Eq, Copy, Clone)]
         pub struct SpecifiedValue {
             pub underline: bool,
             pub overline: bool,
@@ -1293,7 +1293,7 @@ pub mod longhands {
         use cssparser::RGBA;
         pub use super::computed_as_specified as to_computed_value;
 
-        #[deriving(Clone, PartialEq, Copy)]
+        #[derive(Clone, PartialEq, Copy)]
         pub struct SpecifiedValue {
             pub underline: Option<RGBA>,
             pub overline: Option<RGBA>,
@@ -1411,7 +1411,7 @@ pub mod longhands {
 
         pub mod computed_value {
             use servo_util::cursor::Cursor;
-            #[deriving(Clone, PartialEq, Eq, Copy, Show)]
+            #[derive(Clone, PartialEq, Eq, Copy, Show)]
             pub enum T {
                 AutoCursor,
                 SpecifiedCursor(Cursor),
@@ -1474,7 +1474,7 @@ pub mod longhands {
 
         pub type SpecifiedValue = Vec<SpecifiedBoxShadow>;
 
-        #[deriving(Clone, PartialEq)]
+        #[derive(Clone, PartialEq)]
         pub struct SpecifiedBoxShadow {
             pub offset_x: specified::Length,
             pub offset_y: specified::Length,
@@ -1489,10 +1489,10 @@ pub mod longhands {
                 if self.inset {
                     let _ = write!(f, "inset ");
                 }
-                let _ = write!(f, "{} {} {} {}", self.offset_x, self.offset_y,
+                let _ = write!(f, "{:?} {:?} {:?} {:?}", self.offset_x, self.offset_y,
                                self.blur_radius, self.spread_radius);
                 if let Some(ref color) = self.color {
-                    let _ = write!(f, "{}", color);
+                    let _ = write!(f, "{:?}", color);
                 }
                 Ok(())
             }
@@ -1505,7 +1505,7 @@ pub mod longhands {
 
             pub type T = Vec<BoxShadow>;
 
-            #[deriving(Clone, PartialEq, Copy)]
+            #[derive(Clone, PartialEq, Copy)]
             pub struct BoxShadow {
                 pub offset_x: Au,
                 pub offset_y: Au,
@@ -1520,7 +1520,7 @@ pub mod longhands {
                     if self.inset {
                         let _ = write!(f, "inset ");
                     }
-                    let _ = write!(f, "{} {} {} {} {}", self.offset_x, self.offset_y,
+                    let _ = write!(f, "{:?} {:?} {:?} {:?} {:?}", self.offset_x, self.offset_y,
                                    self.blur_radius, self.spread_radius, self.color);
                     Ok(())
                 }
@@ -1561,7 +1561,7 @@ pub mod longhands {
 
         pub fn parse_one_box_shadow(input: &mut Parser) -> Result<SpecifiedBoxShadow, ()> {
             use servo_util::geometry::Au;
-            let mut lengths = [specified::Length::Au(Au(0)), ..4];
+            let mut lengths = [specified::Length::Au(Au(0)); 4];
             let mut lengths_parsed = false;
             let mut color = None;
             let mut inset = false;
@@ -1626,7 +1626,7 @@ pub mod longhands {
         pub mod computed_value {
             use servo_util::geometry::Au;
 
-            #[deriving(Clone, PartialEq, Eq, Copy, Show)]
+            #[derive(Clone, PartialEq, Eq, Copy, Show)]
             pub struct ClipRect {
                 pub top: Au,
                 pub right: Option<Au>,
@@ -1637,7 +1637,7 @@ pub mod longhands {
             pub type T = Option<ClipRect>;
         }
 
-        #[deriving(Clone, Show, PartialEq, Copy)]
+        #[derive(Clone, Show, PartialEq, Copy)]
         pub struct SpecifiedClipRect {
             pub top: specified::Length,
             pub right: Option<specified::Length>,
@@ -1706,7 +1706,7 @@ pub mod longhands {
             use values::CSSFloat;
 
             // TODO(pcwalton): `blur`, `drop-shadow`
-            #[deriving(Clone, PartialEq, Show)]
+            #[derive(Clone, PartialEq, Show)]
             pub enum Filter {
                 Brightness(CSSFloat),
                 Contrast(CSSFloat),
@@ -1718,7 +1718,7 @@ pub mod longhands {
                 Sepia(CSSFloat),
             }
 
-            #[deriving(Clone, PartialEq, Show)]
+            #[derive(Clone, PartialEq, Show)]
             pub struct T {
                 pub filters: Vec<Filter>,
             }
@@ -2272,7 +2272,7 @@ mod property_bit_field {
     use std::mem;
 
     pub struct PropertyBitField {
-        storage: [uint, ..(${len(LONGHANDS)} - 1 + uint::BITS) / uint::BITS]
+        storage: [uint; (${len(LONGHANDS)} - 1 + uint::BITS) / uint::BITS]
     }
 
     impl PropertyBitField {
@@ -2418,7 +2418,7 @@ impl CSSWideKeyword {
 }
 
 
-#[deriving(Clone, PartialEq, Eq, Copy, Show)]
+#[derive(Clone, PartialEq, Eq, Copy, Show)]
 pub enum DeclaredValue<T> {
     SpecifiedValue(T),
     Initial,
@@ -2431,14 +2431,14 @@ pub enum DeclaredValue<T> {
 impl<T: Show> DeclaredValue<T> {
     pub fn specified_value(&self) -> Option<String> {
         match self {
-            &DeclaredValue::SpecifiedValue(ref inner) => Some(format!("{}", inner)),
+            &DeclaredValue::SpecifiedValue(ref inner) => Some(format!("{:?}", inner)),
             &DeclaredValue::Initial => None,
             &DeclaredValue::Inherit => Some("inherit".to_owned()),
         }
     }
 }
 
-#[deriving(Clone, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub enum PropertyDeclaration {
     % for property in LONGHANDS:
         ${property.camel_case}(DeclaredValue<longhands::${property.ident}::SpecifiedValue>),
@@ -2446,7 +2446,7 @@ pub enum PropertyDeclaration {
 }
 
 
-#[deriving(Eq, PartialEq, Copy)]
+#[derive(Eq, PartialEq, Copy)]
 pub enum PropertyDeclarationParseResult {
     UnknownProperty,
     ExperimentalProperty,
@@ -2472,15 +2472,15 @@ impl PropertyDeclaration {
                 % if property.derived_from is None:
                     &PropertyDeclaration::${property.camel_case}(ref value) =>
                         value.specified_value()
-                             .unwrap_or_else(|| format!("{}", longhands::${property.ident}::get_initial_value())),
+                             .unwrap_or_else(|| format!("{:?}", longhands::${property.ident}::get_initial_value())),
                 % endif
             % endfor
-            decl => panic!("unsupported property declaration: {}", decl.name()),
+            decl => panic!("unsupported property declaration: {:?}", decl.name()),
         }
     }
 
     pub fn matches(&self, name: &str) -> bool {
-        let name_lower = name.as_slice().to_ascii_lower();
+        let name_lower = name.as_slice().to_ascii_lowercase();
         match (self, name_lower.as_slice()) {
             % for property in LONGHANDS:
                 % if property.derived_from is None:
@@ -2579,7 +2579,7 @@ pub mod style_structs {
 
     % for style_struct in STYLE_STRUCTS:
         #[allow(missing_copy_implementations)]
-        #[deriving(PartialEq, Clone)]
+        #[derive(PartialEq, Clone)]
         pub struct ${style_struct.name} {
             % for longhand in style_struct.longhands:
                 pub ${longhand.ident}: longhands::${longhand.ident}::computed_value::T,
@@ -2588,7 +2588,7 @@ pub mod style_structs {
     % endfor
 }
 
-#[deriving(Clone)]
+#[derive(Clone)]
 pub struct ComputedValues {
     % for style_struct in STYLE_STRUCTS:
         ${style_struct.ident}: Arc<style_structs::${style_struct.name}>,
@@ -2918,7 +2918,7 @@ pub fn cascade(applicable_declarations: &[DeclarationBlock],
                 DeclaredValue::Inherit => inherited_style.$style_struct_getter().$property.clone(),
             }
         };
-    )
+    );
 
     // Initialize `context`
     // Declarations blocks are already stored in increasing precedence order.
@@ -3136,9 +3136,9 @@ pub fn is_supported_property(property: &str) -> bool {
 }
 
 #[macro_export]
-macro_rules! css_properties_accessors(
-    ($macro: ident) => (
-        $macro!(
+macro_rules! css_properties_accessors {
+    ($macro_name: ident) => {
+        $macro_name! {
             % for property in SHORTHANDS + LONGHANDS:
                 ## Servo internal CSS properties are not accessible.
                 ## FIXME: Add BinaryName WebIDL annotation (#4435).
@@ -3150,9 +3150,9 @@ macro_rules! css_properties_accessors(
                     % endif
                 % endif
             % endfor
-        )
-    )
-)
+        }
+    }
+}
 
 pub fn longhands_from_shorthand(shorthand: &str) -> Option<Vec<String>> {
     match shorthand {

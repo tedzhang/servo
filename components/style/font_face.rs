@@ -12,8 +12,8 @@ use url::{Url, UrlParser};
 use parser::ParserContext;
 
 
-pub fn iter_font_face_rules_inner(rules: &[CSSRule], device: &Device,
-                                    callback: |family: &str, source: &Source|) {
+pub fn iter_font_face_rules_inner<F>(rules: &[CSSRule], device: &Device,
+                                     callback: F) where F: Fn(&str, &Source) {
     for rule in rules.iter() {
         match *rule {
             CSSRule::Style(..) |
@@ -31,13 +31,13 @@ pub fn iter_font_face_rules_inner(rules: &[CSSRule], device: &Device,
     }
 }
 
-#[deriving(Clone, Show, PartialEq, Eq)]
+#[derive(Clone, Show, PartialEq, Eq)]
 pub enum Source {
     Url(UrlSource),
     Local(String),
 }
 
-#[deriving(Clone, Show, PartialEq, Eq)]
+#[derive(Clone, Show, PartialEq, Eq)]
 pub struct UrlSource {
     pub url: Url,
     pub format_hints: Vec<String>,

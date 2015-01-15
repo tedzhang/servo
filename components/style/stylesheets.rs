@@ -60,7 +60,7 @@ pub struct StyleRule {
 
 
 impl Stylesheet {
-    pub fn from_bytes_iter<I: Iterator<Vec<u8>>>(
+    pub fn from_bytes_iter<I: Iterator<Item=Vec<u8>>>(
             mut input: I, base_url: Url, protocol_encoding_label: Option<&str>,
             environment_encoding: Option<EncodingRef>, origin: Origin) -> Stylesheet {
         let mut bytes = vec!();
@@ -217,13 +217,13 @@ impl<'a, 'b> QualifiedRuleParser<Vec<Selector>, CSSRule> for MainRuleParser<'a, 
 }
 
 
-pub fn iter_style_rules<'a>(rules: &[CSSRule], device: &media_queries::Device,
-                            callback: |&StyleRule|) {
+pub fn iter_style_rules<'a, F>(rules: &[CSSRule], device: &media_queries::Device,
+                               callback: &mut F) where F: FnMut(&StyleRule) {
     for rule in rules.iter() {
         match *rule {
             CSSRule::Style(ref rule) => callback(rule),
             CSSRule::Media(ref rule) => if rule.media_queries.evaluate(device) {
-                iter_style_rules(rule.rules.as_slice(), device, |s| callback(s))
+                iter_style_rules(rule.rules.as_slice(), device, callback)
             },
             CSSRule::FontFace(..) |
             CSSRule::Charset(..) |
@@ -232,7 +232,7 @@ pub fn iter_style_rules<'a>(rules: &[CSSRule], device: &media_queries::Device,
     }
 }
 
-pub fn iter_stylesheet_media_rules(stylesheet: &Stylesheet, callback: |&MediaRule|) {
+pub fn iter_stylesheet_media_rules<F>(stylesheet: &Stylesheet, mut callback: F) where F: FnMut(&MediaRule) {
     for rule in stylesheet.rules.iter() {
         match *rule {
             CSSRule::Media(ref rule) => callback(rule),
@@ -245,15 +245,15 @@ pub fn iter_stylesheet_media_rules(stylesheet: &Stylesheet, callback: |&MediaRul
 }
 
 #[inline]
-pub fn iter_stylesheet_style_rules(stylesheet: &Stylesheet, device: &media_queries::Device,
-                                   callback: |&StyleRule|) {
-    iter_style_rules(stylesheet.rules.as_slice(), device, callback)
+pub fn iter_stylesheet_style_rules<F>(stylesheet: &Stylesheet, device: &media_queries::Device,
+                                      mut callback: F) where F: FnMut(&StyleRule) {
+    iter_style_rules(stylesheet.rules.as_slice(), device, &mut callback)
 }
 
 
 #[inline]
-pub fn iter_font_face_rules(stylesheet: &Stylesheet, device: &Device,
-                            callback: |family: &str, source: &Source|) {
+pub fn iter_font_face_rules<F>(stylesheet: &Stylesheet, device: &Device,
+                               callback: F) where F: Fn(&str, &Source) {
     iter_font_face_rules_inner(stylesheet.rules.as_slice(), device, callback)
 }
 

@@ -19,6 +19,7 @@ use msg::constellation_msg::LoadData;
 use std::cell::{Cell, RefCell};
 use std::num::Float;
 use std::rc::Rc;
+use std::sync::mpsc::{channel, Sender};
 use time::{mod, Timespec};
 use util::geometry::ScreenPx;
 use util::opts;
@@ -35,7 +36,7 @@ use std::ptr;
 struct HeadlessContext {
     #[allow(dead_code)]
     context: glutin::HeadlessContext,
-    size: TypedSize2D<DevicePixel, uint>,
+    size: TypedSize2D<DevicePixel, u32>,
 }
 
 enum WindowHandle {
@@ -45,7 +46,7 @@ enum WindowHandle {
 
 static mut g_nested_event_loop_listener: Option<*mut (NestedEventLoopListener + 'static)> = None;
 
-fn nested_window_resize(width: uint, height: uint) {
+fn nested_window_resize(width: u32, height: u32) {
     unsafe {
         match g_nested_event_loop_listener {
             None => {}
@@ -56,7 +57,7 @@ fn nested_window_resize(width: uint, height: uint) {
     }
 }
 
-bitflags!(
+bitflags! {
     #[deriving(Show, Copy)]
     flags KeyModifiers: u8 {
         const LEFT_CONTROL = 1,
@@ -66,7 +67,7 @@ bitflags!(
         const LEFT_ALT = 16,
         const RIGHT_ALT = 32,
     }
-)
+}
 
 /// The type of a window.
 pub struct Window {
@@ -97,18 +98,18 @@ fn load_gl_functions(_glutin: &WindowHandle) {
 }
 
 #[cfg(not(target_os="android"))]
-fn gl_version() -> (uint, uint) {
+fn gl_version() -> (u32, u32) {
     (3, 0)
 }
 
 #[cfg(target_os="android")]
-fn gl_version() -> (uint, uint) {
+fn gl_version() -> (u32, u32) {
     (2, 0)
 }
 
 impl Window {
     /// Creates a new window.
-    pub fn new(is_foreground: bool, size: TypedSize2D<DevicePixel, uint>, render_api: RenderApi)
+    pub fn new(is_foreground: bool, size: TypedSize2D<DevicePixel, u32>, render_api: RenderApi)
                -> Rc<Window> {
 
         // Create the glutin window.
@@ -125,7 +126,7 @@ impl Window {
                                     .unwrap();
                 unsafe { glutin_window.make_current() };
 
-                glutin_window.set_window_resize_callback(Some(nested_window_resize));
+                glutin_window.set_window_resize_callback(Some(nested_window_resize as fn(u32, u32)));
                 WindowHandle::Windowed(glutin_window)
             }
             RenderApi::Mesa => {
@@ -168,17 +169,17 @@ impl Window {
 
 impl WindowMethods for Window {
     /// Returns the size of the window in hardware pixels.
-    fn framebuffer_size(&self) -> TypedSize2D<DevicePixel, uint> {
+    fn framebuffer_size(&self) -> TypedSize2D<DevicePixel, u32> {
         let (width, height) = match self.glutin {
             WindowHandle::Windowed(ref window) => {
-                let scale_factor = window.hidpi_factor() as uint;
+                let scale_factor = window.hidpi_factor() as u32;
                 let (width, height) = window.get_inner_size().unwrap();
                 Some((width * scale_factor, height * scale_factor))
             }
-            WindowHandle::Headless(ref context) => Some((context.size.to_untyped().width,
-                                                        context.size.to_untyped().height)),
+            WindowHandle::Headless(ref context) => Some((context.size.to_untyped().width as u32,
+                                                        context.size.to_untyped().height as u32)),
         }.unwrap();
-        TypedSize2D(width as uint, height as uint)
+        TypedSize2D(width, height)
     }
 
     /// Returns the size of the window in density-independent "px" units.
@@ -500,7 +501,7 @@ impl Window {
                    }
             }
             Event::MouseMoved((x, y)) => {
-                self.mouse_pos.set(Point2D(x, y));
+                self.mouse_pos.set(Point2D(x as isize, y as isize));
                 self.event_queue.borrow_mut().push(
                     WindowEvent::MouseWindowMoveEventClass(TypedPoint2D(x as f32, y as f32)));
             }
@@ -588,7 +589,7 @@ impl Window {
         {
             let mut event_queue = self.event_queue.borrow_mut();
             if !event_queue.is_empty() {
-                return event_queue.remove(0).unwrap();
+                return event_queue.remove(0);
             }
         }
 
@@ -618,11 +619,19 @@ impl Window {
                 if close_event || window.is_closed() {
                     WindowEvent::Quit
                 } else {
-                    self.event_queue.borrow_mut().remove(0).unwrap_or(WindowEvent::Idle)
+                    if self.event_queue.borrow().is_empty() {
+                        WindowEvent::Idle
+                    } else {
+                        self.event_queue.borrow_mut().remove(0)
+                    }
                 }
             }
             WindowHandle::Headless(_) => {
-                self.event_queue.borrow_mut().remove(0).unwrap_or(WindowEvent::Idle)
+                if self.event_queue.borrow().is_empty() {
+                    WindowEvent::Idle
+                } else {
+                    self.event_queue.borrow_mut().remove(0)
+                }
             }
         }
     }

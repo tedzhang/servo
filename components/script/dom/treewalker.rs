@@ -119,7 +119,7 @@ impl<'a> TreeWalkerMethods for JSRef<'a, TreeWalker> {
     }
 }
 
-type NodeAdvancer<'a> = |node: JSRef<'a, Node>|: 'a -> Option<Temporary<Node>>;
+type NodeAdvancer<'a> = Fn(JSRef<'a, Node>) -> Option<Temporary<Node>> + 'a;
 
 trait PrivateTreeWalkerHelpers<'a> {
     fn traverse_children(self,
@@ -526,7 +526,9 @@ impl<'a> TreeWalkerHelpers<'a> for JSRef<'a, TreeWalker> {
     }
 }
 
-impl<'a> Iterator<JSRef<'a, Node>> for JSRef<'a, TreeWalker> {
+impl<'a> Iterator for JSRef<'a, TreeWalker> {
+    type Item = JSRef<'a, Node>;
+
    fn next(&mut self) -> Option<JSRef<'a, Node>> {
        match self.next_node() {
            Ok(node) => node.map(|n| n.root().clone()),
