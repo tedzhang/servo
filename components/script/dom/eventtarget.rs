@@ -19,11 +19,14 @@ use dom::xmlhttprequesteventtarget::XMLHttpRequestEventTargetTypeId;
 use dom::virtualmethods::VirtualMethods;
 use js::jsapi::{JS_CompileUCFunction, JS_GetFunctionObject, JS_CloneFunctionObject};
 use js::jsapi::{JSContext, JSObject};
-use servo_util::fnv::FnvState;
+use servo_util::fnv::FnvHasher;
 use servo_util::str::DOMString;
+
 use libc::{c_char, size_t};
 use std::borrow::ToOwned;
 use std::collections::hash_map::Entry::{Occupied, Vacant};
+use std::collections::hash_state::DefaultState;
+use std::default::Default;
 use std::ffi::CString;
 use std::ptr;
 use url::Url;
@@ -76,7 +79,7 @@ pub struct EventListenerEntry {
 pub struct EventTarget {
     reflector_: Reflector,
     type_id: EventTargetTypeId,
-    handlers: DOMRefCell<HashMap<DOMString, Vec<EventListenerEntry>, FnvState>>,
+    handlers: DOMRefCell<HashMap<DOMString, Vec<EventListenerEntry>, DefaultState<FnvHasher>>>,
 }
 
 impl EventTarget {
@@ -84,7 +87,7 @@ impl EventTarget {
         EventTarget {
             reflector_: Reflector::new(),
             type_id: type_id,
-            handlers: DOMRefCell::new(HashMap::with_hash_state(FnvState)),
+            handlers: DOMRefCell::new(Default::default()),
         }
     }
 

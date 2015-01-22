@@ -264,6 +264,7 @@ impl XMLHttpRequest {
 
                 select! (
                     response = cors_port.recv() => {
+                        let response = response.unwrap();
                         if response.network_error {
                             notify_error_and_return!(Network);
                         } else {
@@ -273,7 +274,7 @@ impl XMLHttpRequest {
                             });
                         }
                     },
-                    reason = terminate_receiver.recv() => terminate!(reason)
+                    reason = terminate_receiver.recv() => terminate!(reason.unwrap())
                 );
             }
             _ => {}
@@ -286,6 +287,7 @@ impl XMLHttpRequest {
         let progress_port;
         select! (
             response = start_port.recv() => {
+                let response = response.unwrap();
                 match cors_request {
                     Ok(Some(ref req)) => {
                         match response.metadata.headers {
@@ -302,7 +304,7 @@ impl XMLHttpRequest {
 
                 progress_port = response.progress_port;
             },
-            reason = terminate_receiver.recv() => terminate!(reason)
+            reason = terminate_receiver.recv() => terminate!(reason.unwrap())
         );
 
         let mut buf = vec!();
@@ -319,7 +321,7 @@ impl XMLHttpRequest {
             };
 
             select! (
-                progress = progress_port.recv() => match progress {
+                progress = progress_port.recv() => match progress.unwrap() {
                     Payload(data) => {
                         buf.push_all(data.as_slice());
                         notify_partial_progress(fetch_type,
@@ -333,7 +335,7 @@ impl XMLHttpRequest {
                         notify_error_and_return!(Network);
                     }
                 },
-                reason = terminate_receiver.recv() => terminate!(reason)
+                reason = terminate_receiver.recv() => terminate!(reason.unwrap())
             );
         }
     }

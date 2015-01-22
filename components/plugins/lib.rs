@@ -17,6 +17,7 @@
 #![deny(unused_imports)]
 #![deny(unused_variables)]
 #![allow(missing_copy_implementations)]
+#![allow(unstable)]
 
 #[plugin]
 #[macro_use]

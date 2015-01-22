@@ -53,7 +53,7 @@ use servo_util::smallvec::{SmallVec1, SmallVec};
 use servo_util::str::{LengthOrPercentageOrAuto};
 use std::cell::{Cell, RefCell};
 use std::collections::HashMap;
-use std::collections::hash::state::HashState;
+use std::collections::hash_state::HashState;
 use std::ffi::CString;
 use std::hash::{Hash, Hasher};
 use std::io::timer::Timer;
@@ -177,13 +177,11 @@ impl<T: JSTraceable> JSTraceable for Option<T> {
     }
 }
 
-// XXX AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARGH
-#[old_impl_check]
-impl<K,V,S,H> JSTraceable for HashMap<K, V, S>
-    where K: Eq + Hash<S> + JSTraceable,
-          S: HashState<Hasher=H> + Hasher,
+impl<K,V,S> JSTraceable for HashMap<K, V, S>
+    where K: Hash<<S as HashState>::Hasher> + Eq + JSTraceable,
           V: JSTraceable,
-          H: Hasher<Output=u64>
+          S: HashState,
+          <S as HashState>::Hasher: Hasher<Output=u64>,
 {
     #[inline]
     fn trace(&self, trc: *mut JSTracer) {

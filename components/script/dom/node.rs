@@ -1648,7 +1648,7 @@ impl Node {
                 None => {}
                 Some(chan) => {
                     let LayoutChan(chan) = chan;
-                    chan.send(Msg::ReapLayoutData(layout_data))
+                    chan.send(Msg::ReapLayoutData(layout_data)).unwrap()
                 },
             }
         }
@@ -2295,7 +2295,9 @@ impl<'a> style::TNode<'a, JSRef<'a, Element>> for JSRef<'a, Node> {
         ElementCast::to_ref(self).unwrap()
     }
 
-    fn match_attr<F: Fn(&str) -> bool>(self, attr: &style::AttrSelector, test: F) -> bool {
+    fn match_attr<F>(self, attr: &style::AttrSelector, test: F) -> bool
+        where F: Fn(&str) -> bool
+    {
         let name = {
             if self.is_html_element_in_html_document() {
                 &attr.lower_name
