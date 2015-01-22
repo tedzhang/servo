@@ -15,11 +15,11 @@ use selectors::{Selector, parse_selector_list};
 use parser::ParserContext;
 use properties::{PropertyDeclarationBlock, parse_property_declaration_list};
 use namespaces::{NamespaceMap, parse_namespace_rule};
-use media_queries::{mod, Device, MediaQueryList, parse_media_query_list};
+use media_queries::{self, Device, MediaQueryList, parse_media_query_list};
 use font_face::{FontFaceRule, Source, parse_font_face_block, iter_font_face_rules_inner};
 
 
-#[deriving(Clone, PartialEq, Eq, Copy, Show)]
+#[derive(Clone, PartialEq, Eq, Copy, Show)]
 pub enum Origin {
     UserAgent,
     Author,
@@ -27,7 +27,7 @@ pub enum Origin {
 }
 
 
-#[deriving(Show, PartialEq)]
+#[derive(Show, PartialEq)]
 pub struct Stylesheet {
     /// List of rules in the order they were found (important for
     /// cascading order)
@@ -36,7 +36,7 @@ pub struct Stylesheet {
 }
 
 
-#[deriving(Show, PartialEq)]
+#[derive(Show, PartialEq)]
 pub enum CSSRule {
     Charset(String),
     Namespace(Option<String>, Namespace),
@@ -45,14 +45,14 @@ pub enum CSSRule {
     FontFace(FontFaceRule),
 }
 
-#[deriving(Show, PartialEq)]
+#[derive(Show, PartialEq)]
 pub struct MediaRule {
     pub media_queries: MediaQueryList,
     pub rules: Vec<CSSRule>,
 }
 
 
-#[deriving(Show, PartialEq)]
+#[derive(Show, PartialEq)]
 pub struct StyleRule {
     pub selectors: Vec<Selector>,
     pub declarations: PropertyDeclarationBlock,
@@ -122,7 +122,7 @@ struct MainRuleParser<'a, 'b: 'a> {
 }
 
 
-#[deriving(Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Eq, PartialEq, Ord, PartialOrd)]
 enum State {
     Start = 1,
     Imports = 2,
@@ -140,7 +140,7 @@ enum AtRulePrelude {
 impl<'a, 'b> AtRuleParser<AtRulePrelude, CSSRule> for MainRuleParser<'a, 'b> {
     fn parse_prelude(&mut self, name: &str, input: &mut Parser)
                      -> Result<AtRuleType<AtRulePrelude, CSSRule>, ()> {
-        match_ignore_ascii_case! { name:
+        match_ignore_ascii_case! { name,
             "charset" => {
                 if self.state <= State::Start {
                     // Valid @charset rules are just ignored
@@ -174,7 +174,7 @@ impl<'a, 'b> AtRuleParser<AtRulePrelude, CSSRule> for MainRuleParser<'a, 'b> {
 
         self.state = State::Body;
 
-        match_ignore_ascii_case! { name:
+        match_ignore_ascii_case! { name,
             "media" => {
                 let media_queries = parse_media_query_list(input);
                 Ok(AtRuleType::WithBlock(AtRulePrelude::Media(media_queries)))
@@ -355,7 +355,7 @@ fn test_parse_stylesheet() {
                             simple_selectors: vec![
                                 SimpleSelector::Class(Atom::from_slice("ok")),
                             ],
-                            next: Some((box CompoundSelector {
+                            next: Some(Box::new(CompoundSelector {
                                 simple_selectors: vec![
                                     SimpleSelector::ID(Atom::from_slice("d1")),
                                 ],

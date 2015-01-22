@@ -18,7 +18,7 @@ macro_rules! define_css_keyword_enum {
 
         impl $name {
             pub fn parse(input: &mut ::cssparser::Parser) -> Result<$name, ()> {
-                match_ignore_ascii_case! { try!(input.expect_ident()):
+                match_ignore_ascii_case! { try!(input.expect_ident()),
                     $( $css => Ok($name::$variant) ),+
                     _ => Err(())
                 }
@@ -53,7 +53,7 @@ pub mod specified {
     use std::fmt;
     use std::fmt::{Formatter, Show};
     use url::Url;
-    use cssparser::{mod, Token, Parser, ToCss, CssStringWriter};
+    use cssparser::{self, Token, Parser, ToCss, CssStringWriter};
     use parser::ParserContext;
     use text_writer::{self, TextWriter};
     use servo_util::geometry::Au;
@@ -183,7 +183,7 @@ pub mod specified {
             Length::parse_internal(input, /* negative_ok = */ false)
         }
         pub fn parse_dimension(value: CSSFloat, unit: &str) -> Result<Length, ()> {
-            match_ignore_ascii_case! { unit:
+            match_ignore_ascii_case! { unit,
                 "px" => Ok(Length::from_px(value)),
                 "in" => Ok(Length::Au(Au((value * AU_PER_IN) as i32))),
                 "cm" => Ok(Length::Au(Au((value * AU_PER_CM) as i32))),
@@ -378,7 +378,7 @@ pub mod specified {
                     Ok(PositionComponent::Length(Length::Au(Au(0))))
                 }
                 Token::Ident(value) => {
-                    match_ignore_ascii_case! { value:
+                    match_ignore_ascii_case! { value,
                         "center" => Ok(PositionComponent::Center),
                         "left" => Ok(PositionComponent::Left),
                         "right" => Ok(PositionComponent::Right),
@@ -434,7 +434,7 @@ pub mod specified {
         pub fn parse(input: &mut Parser) -> Result<Angle, ()> {
             match try!(input.next()) {
                 Token::Dimension(value, unit) => {
-                    match_ignore_ascii_case! { unit:
+                    match_ignore_ascii_case! { unit,
                         "deg" => Ok(Angle(value.value * RAD_PER_DEG)),
                         "grad" => Ok(Angle(value.value * RAD_PER_GRAD)),
                         "turn" => Ok(Angle(value.value * RAD_PER_TURN)),
@@ -480,7 +480,7 @@ pub mod specified {
                     Ok(Image::Url(context.parse_url(url.as_slice())))
                 }
                 Token::Function(name) => {
-                    match_ignore_ascii_case! { name:
+                    match_ignore_ascii_case! { name,
                         "linear-gradient" => {
                             Ok(Image::LinearGradient(try!(
                                 input.parse_nested_block(LinearGradient::parse_function))))
@@ -643,7 +643,7 @@ pub mod specified {
 
     pub fn parse_border_width(input: &mut Parser) -> Result<Length, ()> {
         input.try(Length::parse_non_negative).or_else(|()| {
-            match_ignore_ascii_case! { try!(input.expect_ident()):
+            match_ignore_ascii_case! { try!(input.expect_ident()),
                 "thin" => Ok(Length::from_px(1.)),
                 "medium" => Ok(Length::from_px(3.)),
                 "thick" => Ok(Length::from_px(5.))

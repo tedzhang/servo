@@ -21,7 +21,7 @@ extern crate geom;
 extern crate getopts;
 extern crate layers;
 extern crate libc;
-#[no_link] #[macro_use] extern crate plugins;
+#[no_link] #[macro_use] extern crate cssparser;
 extern crate rand;
 extern crate "serialize" as rustc_serialize;
 #[cfg(target_os="macos")]

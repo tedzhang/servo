@@ -558,7 +558,7 @@ pub mod longhands {
             input.try(specified::LengthOrPercentage::parse_non_negative)
             .map(SpecifiedValue::LengthOrPercentage)
             .or_else(|()| {
-                match_ignore_ascii_case! { try!(input.expect_ident()):
+                match_ignore_ascii_case! { try!(input.expect_ident()),
                     % for keyword in vertical_align_keywords[:-1]:
                         "${keyword}" => Ok(SpecifiedValue::${to_rust_ident(keyword)}),
                     % endfor
@@ -974,7 +974,7 @@ pub mod longhands {
                 return Ok(FontFamily::FamilyName(value.into_owned()))
             }
             let first_ident = try!(input.expect_ident());
-//            match_ignore_ascii_case! { first_ident:
+//            match_ignore_ascii_case! { first_ident,
 //                "serif" => return Ok(Serif),
 //                "sans-serif" => return Ok(SansSerif),
 //                "cursive" => return Ok(Cursive),
@@ -1019,7 +1019,7 @@ pub mod longhands {
         /// normal | bold | bolder | lighter | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900
         pub fn parse(_context: &ParserContext, input: &mut Parser) -> Result<SpecifiedValue, ()> {
             input.try(|input| {
-                match_ignore_ascii_case! { try!(input.expect_ident()):
+                match_ignore_ascii_case! { try!(input.expect_ident()),
                     "bold" => Ok(SpecifiedValue::Weight700),
                     "normal" => Ok(SpecifiedValue::Weight400),
                     "bolder" => Ok(SpecifiedValue::Bolder),
@@ -1130,7 +1130,7 @@ pub mod longhands {
                 specified::LengthOrPercentage::Percentage(value) => specified::Length::Em(value)
             })
             .or_else(|()| {
-                match_ignore_ascii_case! { try!(input.expect_ident()):
+                match_ignore_ascii_case! { try!(input.expect_ident()),
                     "xx-small" => Ok(specified::Length::Au(Au::from_px(MEDIUM_PX) * 3 / 5)),
                     "x-small" => Ok(specified::Length::Au(Au::from_px(MEDIUM_PX) * 3 / 4)),
                     "small" => Ok(specified::Length::Au(Au::from_px(MEDIUM_PX) * 8 / 9)),
@@ -1270,7 +1270,7 @@ pub mod longhands {
             let mut blink = false;
             let mut empty = true;
             loop {
-                match_ignore_ascii_case! { try!(input.expect_ident()):
+                match_ignore_ascii_case! { try!(input.expect_ident()),
                     "underline" => if result.underline { return Err(()) }
                                   else { empty = false; result.underline = true },
                     "overline" => if result.overline { return Err(()) }
@@ -1279,7 +1279,7 @@ pub mod longhands {
                                       else { empty = false; result.line_through = true },
                     "blink" => if blink { return Err(()) }
                                else { empty = false; blink = true }
-                    _ => break,
+                    _ => break
                 }
             }
             if !empty { Ok(result) } else { Err(()) }
@@ -1768,7 +1768,7 @@ pub mod longhands {
             loop {
                 if let Ok(function_name) = input.try(|input| input.expect_function()) {
                     filters.push(try!(input.parse_nested_block(|input| {
-                        match_ignore_ascii_case! { function_name:
+                        match_ignore_ascii_case! { function_name,
                             "brightness" => parse_factor(input).map(Filter::Brightness),
                             "contrast" => parse_factor(input).map(Filter::Contrast),
                             "grayscale" => parse_factor(input).map(Filter::Grayscale),
@@ -2031,9 +2031,9 @@ pub mod shorthands {
         let _ignored = context;
 
         fn parse_one_set_of_border_radii(mut input: &mut Parser)
-                                         -> Result<[LengthOrPercentage, ..4], ()> {
+                                         -> Result<[LengthOrPercentage; 4], ()> {
             let mut count = 0;
-            let mut values = [LengthOrPercentage::Length(Length::Au(Au(0))), ..4];
+            let mut values = [LengthOrPercentage::Length(Length::Au(Au(0))); 4];
             while count < 4 {
                 if let Ok(value) = input.try(LengthOrPercentage::parse) {
                     values[count] = value;
@@ -2309,7 +2309,7 @@ mod property_bit_field {
 
 /// Declarations are stored in reverse order.
 /// Overridden declarations are skipped.
-#[deriving(Show, PartialEq)]
+#[derive(Show, PartialEq)]
 pub struct PropertyDeclarationBlock {
     pub important: Arc<Vec<PropertyDeclaration>>,
     pub normal: Arc<Vec<PropertyDeclaration>>,
@@ -2399,7 +2399,7 @@ fn deduplicate_property_declarations(declarations: Vec<PropertyDeclaration>)
 }
 
 
-#[deriving(Copy, PartialEq, Eq, Show)]
+#[derive(Copy, PartialEq, Eq, Show)]
 pub enum CSSWideKeyword {
     InitialKeyword,
     InheritKeyword,
@@ -2408,7 +2408,7 @@ pub enum CSSWideKeyword {
 
 impl CSSWideKeyword {
     pub fn parse(input: &mut Parser) -> Result<CSSWideKeyword, ()> {
-        match_ignore_ascii_case! { try!(input.expect_ident()):
+        match_ignore_ascii_case! { try!(input.expect_ident()),
             "initial" => Ok(CSSWideKeyword::InitialKeyword),
             "inherit" => Ok(CSSWideKeyword::InheritKeyword),
             "unset" => Ok(CSSWideKeyword::UnsetKeyword)
@@ -2493,7 +2493,7 @@ impl PropertyDeclaration {
 
     pub fn parse(name: &str, context: &ParserContext, input: &mut Parser,
                  result_list: &mut Vec<PropertyDeclaration>) -> PropertyDeclarationParseResult {
-        match_ignore_ascii_case! { name:
+        match_ignore_ascii_case! { name,
             % for property in LONGHANDS:
                 % if property.derived_from is None:
                     "${property.name}" => {

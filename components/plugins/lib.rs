@@ -52,23 +52,3 @@ pub fn plugin_registrar(reg: &mut Registry) {
     reg.register_lint_pass(Box::new(lints::str_to_string::StrToStringPass) as LintPassObject);
     reg.register_lint_pass(Box::new(lints::ban::BanPass) as LintPassObject);
 }
-
-
-#[macro_export]
-macro_rules! match_ignore_ascii_case {
-    ( $value: expr=> $( $string: expr => $result: expr ),+ _ => $fallback: expr, ) => {
-        match_ignore_ascii_case! { $value:
-            $( $string => $result ),+
-            _ => $fallback
-        }
-    };
-    ( $value: expr=> $( $string: expr => $result: expr ),+ _ => $fallback: expr ) => {
-        {
-            use std::ascii::AsciiExt;
-            match $value.as_slice() {
-                $( s if s.eq_ignore_ascii_case($string) => $result, )+
-                _ => $fallback
-            }
-        }
-    };
-}

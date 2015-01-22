@@ -19,17 +19,14 @@ extern crate serialize;
 extern crate text_writer;
 extern crate url;
 
-#[phase(plugin, link)]
+#[macro_use]
 extern crate cssparser;
 
-#[phase(plugin)]
+#[macro_use]
 extern crate matches;
 
 extern crate encoding;
 extern crate string_cache;
-
-#[no_link] #[macro_use]
-extern crate plugins;
 
 #[macro_use]
 extern crate lazy_static;
@@ -68,7 +65,7 @@ pub mod stylesheets;
 pub mod parser;
 pub mod selectors;
 pub mod selector_matching;
-pub mod values;
+#[macro_use] pub mod values;
 pub mod properties;
 pub mod namespaces;
 pub mod node;

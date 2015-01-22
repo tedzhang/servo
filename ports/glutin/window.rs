@@ -58,7 +58,7 @@ fn nested_window_resize(width: u32, height: u32) {
 }
 
 bitflags! {
-    #[deriving(Show, Copy)]
+    #[derive(Show, Copy)]
     flags KeyModifiers: u8 {
         const LEFT_CONTROL = 1,
         const RIGHT_CONTROL = 2,

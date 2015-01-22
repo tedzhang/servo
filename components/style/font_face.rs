@@ -43,7 +43,7 @@ pub struct UrlSource {
     pub format_hints: Vec<String>,
 }
 
-#[deriving(Show, PartialEq, Eq)]
+#[derive(Show, PartialEq, Eq)]
 pub struct FontFaceRule {
     pub family: String,
     pub sources: Vec<Source>,
@@ -82,7 +82,7 @@ impl<'a, 'b> AtRuleParser<(), ()> for FontFaceRuleParser<'a, 'b> {}
 
 impl<'a, 'b> DeclarationParser<()> for FontFaceRuleParser<'a, 'b> {
     fn parse_value(&mut self, name: &str, input: &mut Parser) -> Result<(), ()> {
-        match_ignore_ascii_case! { name:
+        match_ignore_ascii_case! { name,
             "font-family" => {
                 self.family = Some(try!(parse_one_non_generic_family_name(input)));
                 Ok(())

@@ -5,7 +5,7 @@
 use std::cmp;
 use std::ascii::{AsciiExt, OwnedAsciiExt};
 use std::sync::Arc;
-use std::str::CowString;
+use std::string::CowString;
 
 use cssparser::{Token, Parser, parse_nth};
 use string_cache::{Atom, Namespace};
@@ -257,7 +257,7 @@ fn parse_selector(context: &ParserContext, input: &mut Parser) -> Result<Selecto
         let (simple_selectors, pseudo) = try!(parse_simple_selectors(context, input));
         compound = CompoundSelector {
             simple_selectors: simple_selectors,
-            next: Some((box compound, combinator))
+            next: Some((Box::new(compound), combinator))
         };
         pseudo_element = pseudo;
     }
@@ -299,7 +299,7 @@ fn parse_type_selector(context: &ParserContext, input: &mut Parser)
 }
 
 
-#[deriving(Show)]
+#[derive(Show)]
 enum SimpleSelectorParseResult {
     SimpleSelector(SimpleSelector),
     PseudoElement(PseudoElement),
@@ -507,7 +507,7 @@ fn parse_functional_pseudo_class(context: &ParserContext,
                                  name: &str,
                                  inside_negation: bool)
                                  -> Result<SimpleSelector,()> {
-    match_ignore_ascii_case! { name:
+    match_ignore_ascii_case! { name,
         "nth-child" => parse_nth_pseudo_class(input, SimpleSelector::NthChild),
         "nth-of-type" => parse_nth_pseudo_class(input, SimpleSelector::NthOfType),
         "nth-last-child" => parse_nth_pseudo_class(input, SimpleSelector::NthLastChild),
@@ -524,8 +524,8 @@ fn parse_functional_pseudo_class(context: &ParserContext,
 }
 
 
-fn parse_nth_pseudo_class(input: &mut Parser, selector: |i32, i32| -> SimpleSelector)
-                          -> Result<SimpleSelector, ()> {
+fn parse_nth_pseudo_class<F>(input: &mut Parser, selector: F) -> Result<SimpleSelector, ()>
+where F: FnOnce(i32, i32) -> SimpleSelector {
     let (a, b) = try!(parse_nth(input));
     Ok(selector(a, b))
 }
@@ -566,7 +566,7 @@ fn parse_one_simple_selector(context: &ParserContext,
                 Ok(Token::Ident(name)) => {
                     match parse_simple_pseudo_class(context, name.as_slice()) {
                         Err(()) => {
-                            let pseudo_element = match_ignore_ascii_case! { name:
+                            let pseudo_element = match_ignore_ascii_case! { name,
                                 // Supported CSS 2.1 pseudo-elements only.
                                 // ** Do not add to this list! **
                                 "before" => PseudoElement::Before,
@@ -607,7 +607,7 @@ fn parse_one_simple_selector(context: &ParserContext,
 }
 
 fn parse_simple_pseudo_class(context: &ParserContext, name: &str) -> Result<SimpleSelector,()> {
-    match_ignore_ascii_case! { name:
+    match_ignore_ascii_case! { name,
         "any-link" => Ok(SimpleSelector::AnyLink),
         "link" => Ok(SimpleSelector::Link),
         "visited" => Ok(SimpleSelector::Visited),
@@ -635,7 +635,7 @@ fn parse_simple_pseudo_class(context: &ParserContext, name: &str) -> Result<Simp
 }
 
 fn parse_pseudo_element(name: &str) -> Result<PseudoElement, ()> {
-    match_ignore_ascii_case! { name:
+    match_ignore_ascii_case! { name,
         "before" => Ok(PseudoElement::Before),
         "after" => Ok(PseudoElement::After)
         _ => Err(())
@@ -797,7 +797,7 @@ mod tests {
                 simple_selectors: vec![
                     SimpleSelector::Class(Atom::from_slice("ok")),
                 ],
-                next: Some((box CompoundSelector {
+                next: Some(Box::new(CompoundSelector {
                     simple_selectors: vec![
                         SimpleSelector::ID(Atom::from_slice("d1")),
                     ],

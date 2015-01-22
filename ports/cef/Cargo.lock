@@ -131,8 +131,8 @@ dependencies = [
 
 [[package]]
 name = "cssparser"
-version = "0.1.1"
-source = "git+https://github.com/servo/rust-cssparser#f3f10bc835610f622c437d8407c8689ecffb7131"
+version = "0.2.0"
+source = "git+https://github.com/servo/rust-cssparser#2a8c9f2c5f568495bae16f44b799be39b8efad39"
 dependencies = [
  "encoding 0.2.18 (registry+https://github.com/rust-lang/crates.io-index)",
  "matches 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -459,7 +459,7 @@ dependencies = [
 name = "layout"
 version = "0.0.1"
 dependencies = [
- "cssparser 0.1.1 (git+https://github.com/servo/rust-cssparser)",
+ "cssparser 0.2.0 (git+https://github.com/servo/rust-cssparser)",
  "encoding 0.2.18 (registry+https://github.com/rust-lang/crates.io-index)",
  "geom 0.1.0 (git+https://github.com/servo/rust-geom)",
  "gfx 0.0.1",
@@ -639,7 +639,7 @@ name = "script"
 version = "0.0.1"
 dependencies = [
  "canvas 0.0.1",
- "cssparser 0.1.1 (git+https://github.com/servo/rust-cssparser)",
+ "cssparser 0.2.0 (git+https://github.com/servo/rust-cssparser)",
  "devtools_traits 0.0.1",
  "encoding 0.2.18 (registry+https://github.com/rust-lang/crates.io-index)",
  "geom 0.1.0 (git+https://github.com/servo/rust-geom)",
@@ -726,10 +726,11 @@ dependencies = [
 name = "style"
 version = "0.0.1"
 dependencies = [
- "cssparser 0.1.1 (git+https://github.com/servo/rust-cssparser)",
+ "cssparser 0.2.0 (git+https://github.com/servo/rust-cssparser)",
  "encoding 0.2.18 (registry+https://github.com/rust-lang/crates.io-index)",
  "geom 0.1.0 (git+https://github.com/servo/rust-geom)",
  "lazy_static 0.1.6 (git+https://github.com/Kimundi/lazy-static.rs)",
+ "matches 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "plugins 0.0.1",
  "string_cache 0.0.0 (git+https://github.com/servo/string-cache)",
  "string_cache_macros 0.0.0 (git+https://github.com/servo/string-cache)",
@@ -778,7 +779,7 @@ dependencies = [
 name = "util"
 version = "0.0.1"
 dependencies = [
- "cssparser 0.1.1 (git+https://github.com/servo/rust-cssparser)",
+ "cssparser 0.2.0 (git+https://github.com/servo/rust-cssparser)",
  "geom 0.1.0 (git+https://github.com/servo/rust-geom)",
  "layers 0.1.0 (git+https://github.com/servo/rust-layers)",
  "plugins 0.0.1",

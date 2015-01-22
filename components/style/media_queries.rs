@@ -11,7 +11,7 @@ use servo_util::geometry::{Au, ViewportPx};
 use values::{computed, specified};
 
 
-#[deriving(Show, PartialEq)]
+#[derive(Show, PartialEq)]
 pub struct MediaQueryList {
     media_queries: Vec<MediaQuery>
 }
@@ -44,7 +44,7 @@ pub enum Qualifier {
     Not,
 }
 
-#[deriving(Show, PartialEq)]
+#[derive(Show, PartialEq)]
 pub struct MediaQuery {
     qualifier: Option<Qualifier>,
     media_type: MediaQueryType,
@@ -76,7 +76,7 @@ pub enum MediaType {
 }
 
 #[allow(missing_copy_implementations)]
-#[deriving(Show)]
+#[derive(Show)]
 pub struct Device {
     pub media_type: MediaType,
     pub viewport_size: TypedSize2D<ViewportPx, f32>,
@@ -109,7 +109,7 @@ impl Expression {
             let name = try!(input.expect_ident());
             try!(input.expect_colon());
             // TODO: Handle other media features
-            match_ignore_ascii_case! { name:
+            match_ignore_ascii_case! { name,
                 "min-width" => {
                     Ok(Expression::Width(Range::Min(try!(parse_non_negative_length(input)))))
                 },
@@ -136,7 +136,7 @@ impl MediaQuery {
 
         let media_type;
         if let Ok(ident) = input.try(|input| input.expect_ident()) {
-            media_type = match_ignore_ascii_case! { ident:
+            media_type = match_ignore_ascii_case! { ident,
                 "screen" => MediaQueryType::MediaType(MediaType::Screen),
                 "print" => MediaQueryType::MediaType(MediaType::Print),
                 "all" => MediaQueryType::All
